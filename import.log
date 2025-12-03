@@ -1,9 +1,25 @@
-time=2025-12-02T23:59:52.530Z level=INFO msg=odooimport start=180ns
-time=2025-12-02T23:59:52.530Z level=INFO msg=decimal.precision func=DecimalPrecision
-time=2025-12-02T23:59:53.069Z level=INFO msg=res.currency func=ResCurrency
-time=2025-12-02T23:59:53.491Z level=ERROR msg=res.currency mode=create data="map[active:true decimal_places:2 position:before rounding:0.01 symbol:$]" row=-1 err="create failed: request failed with status 422: 422 Unprocessable Entity The operation cannot be completed: Missing required value for the field 'Currency' (name).\nModel: 'Currency' (res.currency)\n- create/update: a mandatory field is not set\n- delete: another model requires the record being deleted, you can archive it instead\n"
-time=2025-12-02T23:59:53.583Z level=INFO msg=res.company func=ResCompany
-time=2025-12-02T23:59:54.876Z level=INFO msg=uom.uom func=Uomuom
-time=2025-12-02T23:59:56.785Z level=INFO msg=res.bank func=ResBank
-time=2025-12-02T23:59:59.175Z level=INFO msg=account.account func=AccountAccountCleanup
-time=2025-12-02T23:59:59.196Z level=INFO msg=odooimport end=6.666782493s
+time=2025-12-03T17:27:09.101Z level=INFO msg=odooimport start=80ns
+time=2025-12-03T17:27:09.101Z level=INFO msg=decimal.precision func=DecimalPrecision
+time=2025-12-03T17:27:09.445Z level=INFO msg=res.currency func=ResCurrency
+time=2025-12-03T17:27:09.810Z level=ERROR msg=res.currency mode=create data="map[active:true decimal_places:2 position:before rounding:0.01 symbol:$]" row=-1 err="create failed: request failed with status 422: 422 Unprocessable Entity The operation cannot be completed: Missing required value for the field 'Currency' (name).\nModel: 'Currency' (res.currency)\n- create/update: a mandatory field is not set\n- delete: another model requires the record being deleted, you can archive it instead\n"
+time=2025-12-03T17:27:09.896Z level=INFO msg=res.company func=ResCompany
+time=2025-12-03T17:27:10.314Z level=INFO msg=uom.uom func=Uomuom
+time=2025-12-03T17:27:12.468Z level=INFO msg=res.bank func=ResBank
+time=2025-12-03T17:27:14.896Z level=INFO msg=account.account func=AccountAccountCleanup
+time=2025-12-03T17:27:14.916Z level=INFO msg=account.account func=AccountAccountNewAccounts
+time=2025-12-03T17:27:15.064Z level=INFO msg=account.account func=AccountAccountRename
+time=2025-12-03T17:27:15.141Z level=INFO msg=account.account func=AccountAccount
+time=2025-12-03T17:27:41.241Z level=INFO msg=account.journal func=AccountJournal
+time=2025-12-03T17:27:41.241Z level=INFO msg=account.journal func=AccountJournalRename
+time=2025-12-03T17:27:42.197Z level=ERROR msg=account.journal mode=create data="map[active:true code:OPEN default_account_id:1407 name:Fiscal Opening Entry Journal type:situation]" row=-1 err="create failed: request failed with status 500: 500 Internal Server Error Wrong value for account.journal.type: 'situation'"
+time=2025-12-03T17:27:42.711Z level=INFO msg=account.payment.term func=AccountPaymentTermRename
+time=2025-12-03T17:27:42.789Z level=INFO msg=account.payment.term func=AccountPaymentTerm
+time=2025-12-03T17:27:43.995Z level=INFO msg=res.users func=ResUsers
+time=2025-12-03T17:28:10.373Z level=INFO msg=res.users func=ResUsersCreateEmployee
+time=2025-12-03T17:28:10.997Z level=INFO msg=hr.department func=HRDepartment
+time=2025-12-03T17:28:12.170Z level=INFO msg=hr.job func=HRJob
+time=2025-12-03T17:28:15.415Z level=INFO msg=hr.employee func=HREmployee
+time=2025-12-03T17:28:32.064Z level=INFO msg=hr.department func=HRDepartment
+time=2025-12-03T17:28:33.097Z level=INFO msg=crm.team func=CrmTeam
+time=2025-12-03T17:28:33.680Z level=INFO msg=crm.team.member func=CrmTeamMember
+time=2025-12-03T17:28:34.036Z level=INFO msg=odooimport end=1m24.934984102s

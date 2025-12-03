@@ -167,6 +167,7 @@ func (m *Model) AccountAccount() {
 
 	accounts, err := m.Source.SearchRead(model, 0, 0, sourceFields, []any{
 		// []any{"deprecated", "=", false},
+		[]any{"code", "not in", []string{"113100", "113110", "212100", "212110", "212120", "212300"}},
 	})
 	if err != nil {
 		m.Log.Error(model, "func", trace(), "err", err)
@@ -289,6 +290,11 @@ func (m *Model) AccountAccountCleanup() {
 	m.Log.Info(model, "func", trace())
 
 	sourceFields := ExtractJSONTags(AccountAccount_190{})
+
+	bankSuspenseID, _ := m.Dest.GetID("account.account", []any{[]any{"code", "=", "1"}})
+	if bankSuspenseID != -1 {
+		return
+	}
 
 	accounts, err := m.Dest.SearchRead(model, 0, 0, sourceFields, []any{
 		[]any{"code", "not in", odoo19excludeAccounts},
