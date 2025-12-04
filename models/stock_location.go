@@ -334,3 +334,20 @@ func (m *Model) StockLocation() {
 		bar.Finish()
 	}
 }
+
+func (m *Model) GetDestStockLocation(old_location_id int, old_location_name string) int {
+	old_location, _ := m.Source.SearchRead("stock.location", 0, 0, []string{"complete_name"}, []any{
+		[]any{"id", "=", old_location_id},
+	})
+	if len(old_location) != 1 {
+		return -1
+	}
+	location_name := old_location[0]["complete_name"].(string)
+	dest_location_id, _ := m.Dest.GetID("stock.location", []any{
+		[]any{"complete_name", "=", location_name},
+	})
+	if dest_location_id == -1 {
+		return -1
+	}
+	return dest_location_id
+}

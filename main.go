@@ -72,6 +72,8 @@ func main() {
 		model.NCRClaim,             // NCR Claims
 		model.NCRProductLine,       // NCR Claim Product Lines
 		model.MtrTemplate,          // MTR Templates
+		// Point of no return - data beyond this point wont let you go back to previous steps
+		model.StockQuant, // Stock Quants
 	}
 	for _, fn := range fns {
 		step := time.Now()

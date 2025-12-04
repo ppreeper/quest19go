@@ -100,7 +100,7 @@ func (m *Model) MRPBomLine() {
 			continue
 		}
 		if bom == -1 {
-			m.Log.Error(model, "func", trace(), "err", fmt.Sprintf("mrp.bom not found for %s", old_bom))
+			m.Log.Error(model, "func", trace(), "err", fmt.Sprintf("mrp.bom not found for %v", old_bom))
 			continue
 		}
 		// fmt.Println("DEST BOM ID:", bom)
