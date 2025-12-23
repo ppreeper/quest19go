@@ -67,6 +67,10 @@ func (m *Model) StockLocation() {
 		FillStruct(r, &root)
 		// fmt.Println(prettyprint(root))
 
+		if root.Name == "Packing Zone" {
+			continue
+		}
+
 		ur := map[string]any{
 			"name":    root.Name,
 			"barcode": odoo_barcode(root.Name),
@@ -97,6 +101,9 @@ func (m *Model) StockLocation() {
 			var layer1 StockLocation_150
 			FillStruct(r, &layer1)
 			// fmt.Println(prettyprint(layer1.CompleteName))
+			if layer1.Name == "Packing Zone" {
+				continue
+			}
 
 			_, layer1_location_name := ParseMany2One(layer1.LocationID)
 			if root.CompleteName != layer1_location_name {
@@ -335,18 +342,129 @@ func (m *Model) StockLocation() {
 	}
 }
 
+func (m *Model) InterWarehouseTransitLocations() {
+	model := "stock.location"
+	banner.Println(model, trace())
+	m.Log.Info(model, "func", trace())
+
+	rootname := "Inter-warehouse transit"
+	parent_location_id, _ := m.Dest.GetID("stock.location", []any{
+		[]any{"name", "=", rootname},
+		[]any{"usage", "=", "transit"},
+	})
+
+	routerules := [][]string{
+		{"Inter-warehouse Transfer Route CGY to EDM", "Push to EDM", "Transit CGY to EDM", "EWH/Receiving", "EWHIN", "CWH"},
+		{"Inter-warehouse Transfer Route EDM to CGY", "Push to CGY", "Transit EDM to CGY", "CWH/Stock", "CWHIN", "EWH"},
+	}
+	bar := progressbar.Default(int64(len(routerules)), "Transit Locations")
+	for _, rr := range routerules {
+		route_name := rr[0]
+		rule_name := rr[1]
+		source_name := rr[2]
+		dest_name := rr[3]
+		op_name := rr[4]
+		wh_name := rr[5]
+		// fmt.Println(route_name, rule_name)
+
+		// Create Transit Location
+		ur := map[string]any{
+			"name":        source_name,
+			"location_id": parent_location_id,
+			"usage":       "transit",
+		}
+
+		rid, _ := m.Dest.GetID("stock.location", []any{
+			[]any{"name", "=", source_name},
+			[]any{"location_id", "=", parent_location_id},
+			[]any{"usage", "=", "transit"},
+			// []any{"complete_name", "=", odoo_pathjoin(rootname)},
+		})
+		m.writeRecord("stock.location", ur, rid)
+
+		warehouse_id, _ := m.Dest.GetID("stock.warehouse", []any{
+			[]any{"code", "=", wh_name},
+		})
+
+		// Create Route:
+		ur = map[string]any{
+			"name":                     route_name,
+			"product_categ_selectable": false,
+			"product_selectable":       false,
+			"package_type_selectable":  false,
+			"shipping_selectable":      false,
+			"warehouse_selectable":     true,
+			"warehouse_ids":            []any{warehouse_id},
+		}
+		rid, _ = m.Dest.GetID("stock.route", []any{
+			[]any{"name", "=", route_name},
+		})
+		m.writeRecord("stock.route", ur, rid)
+
+		// Create Rule:
+		route_id, _ := m.Dest.GetID("stock.route", []any{
+			[]any{"name", "=", route_name},
+		})
+
+		picking_type_id, _ := m.Dest.GetID("stock.picking.type", []any{
+			[]any{"barcode", "=", op_name},
+		})
+
+		location_src_id, _ := m.Dest.GetID("stock.location", []any{
+			[]any{"name", "=", source_name},
+			[]any{"usage", "=", "transit"},
+		})
+		location_dest_id, _ := m.Dest.GetID("stock.location", []any{
+			[]any{"display_name", "=", dest_name},
+			[]any{"usage", "=", "internal"},
+		})
+
+		ur = map[string]any{
+			"name":              rule_name,
+			"action":            "push",
+			"location_src_id":   location_src_id,
+			"location_dest_id":  location_dest_id,
+			"auto":              "manual",
+			"propagate_carrier": true,
+			"route_id":          route_id,
+			"picking_type_id":   picking_type_id,
+		}
+
+		rid, _ = m.Dest.GetID("stock.rule", []any{
+			[]any{"name", "=", rule_name},
+			[]any{"action", "=", "push"},
+			[]any{"location_src_id", "=", location_src_id},
+			[]any{"location_dest_id", "=", location_dest_id},
+			[]any{"route_id", "=", route_id},
+			[]any{"picking_type_id", "=", picking_type_id},
+		})
+		m.writeRecord("stock.rule", ur, rid)
+		bar.Add(1)
+	}
+	bar.Finish()
+}
+
 func (m *Model) GetDestStockLocation(old_location_id int, old_location_name string) int {
-	old_location, _ := m.Source.SearchRead("stock.location", 0, 0, []string{"complete_name"}, []any{
+	old_location, _ := m.Source.SearchRead("stock.location", 0, 0, []string{"complete_name", "name"}, []any{
 		[]any{"id", "=", old_location_id},
 	})
 	if len(old_location) != 1 {
 		return -1
 	}
 	location_name := old_location[0]["complete_name"].(string)
+
 	dest_location_id, _ := m.Dest.GetID("stock.location", []any{
 		[]any{"complete_name", "=", location_name},
 	})
 	if dest_location_id == -1 {
+		name := old_location[0]["name"].(string)
+		dest_location_id, _ = m.Dest.GetID("stock.location", []any{
+			[]any{"name", "=", name},
+		})
+		if dest_location_id != -1 {
+			return dest_location_id
+		}
+		m.Log.Error("missing location", fmt.Sprintf("%d", old_location_id), old_location_name, "=>", location_name)
 		return -1
 	}
 	return dest_location_id

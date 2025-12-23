@@ -65,6 +65,7 @@ func (m *Model) MRPBom() {
 
 	records, err := m.Source.SearchRead(model, 0, 0, sourceFields, []any{
 		// []any{"deprecated", "=", false},
+		// []any{"product_tmpl_id", "=", "SNC:B7.1.1112"},
 	})
 	if err != nil {
 		m.Log.Error(model, "func", trace(), "err", err)

@@ -51,11 +51,13 @@ func main() {
 		model.HRJob,
 		model.HREmployee,
 		model.HRDepartment,
-		model.CrmTeam,           // Sales Teams
-		model.CrmTeamMember,     // Sales Team Members
-		model.ProductCategories, // Product Categories
-		model.StockWarehouse,    // Warehouses
-		model.StockLocation,     // Stock Locations
+		model.ResUsersPassword,
+		model.CrmTeam,                        // Sales Teams
+		model.CrmTeamMember,                  // Sales Team Members
+		model.ProductCategories,              // Product Categories
+		model.StockWarehouse,                 // Warehouses
+		model.StockLocation,                  // Stock Locations
+		model.InterWarehouseTransitLocations, // Inter-Warehouse Transit Locations
 		model.ProductTemplateStockable,
 		model.ProductTemplateConsumable,
 		model.ProductTemplateService,
@@ -73,7 +75,10 @@ func main() {
 		model.NCRProductLine,       // NCR Claim Product Lines
 		model.MtrTemplate,          // MTR Templates
 		// Point of no return - data beyond this point wont let you go back to previous steps
-		model.StockQuant, // Stock Quants
+		model.DeliveryMethods, // Delivery Methods and stock carriers
+		model.FreightCharges,  // Freight Charges
+		model.StockQuant,      // Stock Quants
+
 	}
 	for _, fn := range fns {
 		step := time.Now()

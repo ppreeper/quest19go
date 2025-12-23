@@ -250,3 +250,22 @@ func (m *Model) Uomuom() {
 	}
 	bar.Finish()
 }
+
+func quickconvertuom(input string) string {
+	switch input {
+	case "IN":
+		return "in"
+	case "FT":
+		return "ft"
+	case "LFT":
+		return "ft"
+	case "YD":
+		return "yd"
+	case "LYD":
+		return "yd"
+	case "Gram":
+		return "g"
+	default:
+		return input
+	}
+}

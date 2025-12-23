@@ -138,6 +138,7 @@ func (m *Model) ProductCategories() {
 		}
 		_, property_account_income_categ := ParseMany2One(root.PropertyAccountIncomeCategID)
 		_, property_account_expense_categ := ParseMany2One(root.PropertyAccountExpenseCategID)
+		_, property_stock_valuation_account_id := ParseMany2One(root.PropertyStockValuationAccountID)
 
 		income_account_id, _ := m.Dest.GetID("account.account", []any{
 			[]any{"display_name", "=", property_account_income_categ},
@@ -147,12 +148,17 @@ func (m *Model) ProductCategories() {
 			[]any{"display_name", "=", property_account_expense_categ},
 		})
 
+		stock_valuation_id, _ := m.Dest.GetID("account.account", []any{
+			[]any{"display_name", "=", property_stock_valuation_account_id},
+		})
+
 		ur := map[string]any{
-			"name":                              root.Name,
-			"property_cost_method":              root.PropertyCostMethod,
-			"property_valuation":                property_valuation,
-			"property_account_income_categ_id":  income_account_id,
-			"property_account_expense_categ_id": expense_account_id,
+			"name":                                root.Name,
+			"property_cost_method":                root.PropertyCostMethod,
+			"property_valuation":                  property_valuation,
+			"property_account_income_categ_id":    income_account_id,
+			"property_account_expense_categ_id":   expense_account_id,
+			"property_stock_valuation_account_id": stock_valuation_id,
 		}
 
 		rid, _ := m.Dest.GetID(model, []any{
@@ -191,6 +197,7 @@ func (m *Model) ProductCategories() {
 			}
 			_, property_account_income_categ := ParseMany2One(layer1.PropertyAccountIncomeCategID)
 			_, property_account_expense_categ := ParseMany2One(layer1.PropertyAccountExpenseCategID)
+			_, property_stock_valuation_account_id := ParseMany2One(root.PropertyStockValuationAccountID)
 
 			income_account_id, _ := m.Dest.GetID("account.account", []any{
 				[]any{"display_name", "=", property_account_income_categ},
@@ -199,13 +206,19 @@ func (m *Model) ProductCategories() {
 			expense_account_id, _ := m.Dest.GetID("account.account", []any{
 				[]any{"display_name", "=", property_account_expense_categ},
 			})
+
+			stock_valuation_id, _ := m.Dest.GetID("account.account", []any{
+				[]any{"display_name", "=", property_stock_valuation_account_id},
+			})
+
 			ur := map[string]any{
-				"name":                              layer1.Name,
-				"parent_id":                         dest_parent_id,
-				"property_cost_method":              layer1.PropertyCostMethod,
-				"property_valuation":                property_valuation,
-				"property_account_income_categ_id":  income_account_id,
-				"property_account_expense_categ_id": expense_account_id,
+				"name":                                layer1.Name,
+				"parent_id":                           dest_parent_id,
+				"property_cost_method":                layer1.PropertyCostMethod,
+				"property_valuation":                  property_valuation,
+				"property_account_income_categ_id":    income_account_id,
+				"property_account_expense_categ_id":   expense_account_id,
+				"property_stock_valuation_account_id": stock_valuation_id,
 			}
 			rid, _ := m.Dest.GetID(model, []any{
 				[]any{"name", "=", layer1.Name},
@@ -250,6 +263,7 @@ func (m *Model) ProductCategories() {
 				}
 				_, property_account_income_categ := ParseMany2One(layer2.PropertyAccountIncomeCategID)
 				_, property_account_expense_categ := ParseMany2One(layer2.PropertyAccountExpenseCategID)
+				_, property_stock_valuation_account_id := ParseMany2One(root.PropertyStockValuationAccountID)
 
 				income_account_id, _ := m.Dest.GetID("account.account", []any{
 					[]any{"display_name", "=", property_account_income_categ},
@@ -258,13 +272,19 @@ func (m *Model) ProductCategories() {
 				expense_account_id, _ := m.Dest.GetID("account.account", []any{
 					[]any{"display_name", "=", property_account_expense_categ},
 				})
+
+				stock_valuation_id, _ := m.Dest.GetID("account.account", []any{
+					[]any{"display_name", "=", property_stock_valuation_account_id},
+				})
+
 				ur := map[string]any{
-					"name":                              layer2.Name,
-					"parent_id":                         dest_parent_id,
-					"property_cost_method":              layer2.PropertyCostMethod,
-					"property_valuation":                property_valuation,
-					"property_account_income_categ_id":  income_account_id,
-					"property_account_expense_categ_id": expense_account_id,
+					"name":                                layer2.Name,
+					"parent_id":                           dest_parent_id,
+					"property_cost_method":                layer2.PropertyCostMethod,
+					"property_valuation":                  property_valuation,
+					"property_account_income_categ_id":    income_account_id,
+					"property_account_expense_categ_id":   expense_account_id,
+					"property_stock_valuation_account_id": stock_valuation_id,
 				}
 				rid, _ := m.Dest.GetID(model, []any{
 					[]any{"name", "=", layer2.Name},
@@ -310,6 +330,7 @@ func (m *Model) ProductCategories() {
 					}
 					_, property_account_income_categ := ParseMany2One(layer2.PropertyAccountIncomeCategID)
 					_, property_account_expense_categ := ParseMany2One(layer2.PropertyAccountExpenseCategID)
+					_, property_stock_valuation_account_id := ParseMany2One(root.PropertyStockValuationAccountID)
 
 					income_account_id, _ := m.Dest.GetID("account.account", []any{
 						[]any{"display_name", "=", property_account_income_categ},
@@ -317,6 +338,10 @@ func (m *Model) ProductCategories() {
 
 					expense_account_id, _ := m.Dest.GetID("account.account", []any{
 						[]any{"display_name", "=", property_account_expense_categ},
+					})
+
+					stock_valuation_id, _ := m.Dest.GetID("account.account", []any{
+						[]any{"display_name", "=", property_stock_valuation_account_id},
 					})
 
 					dest_parent_id, _ := m.Dest.GetID(model, []any{
@@ -328,12 +353,13 @@ func (m *Model) ProductCategories() {
 						property_valuation = "real_time"
 					}
 					ur := map[string]any{
-						"name":                              layer3.Name,
-						"parent_id":                         dest_parent_id,
-						"property_cost_method":              layer3.PropertyCostMethod,
-						"property_valuation":                property_valuation,
-						"property_account_income_categ_id":  income_account_id,
-						"property_account_expense_categ_id": expense_account_id,
+						"name":                                layer3.Name,
+						"parent_id":                           dest_parent_id,
+						"property_cost_method":                layer3.PropertyCostMethod,
+						"property_valuation":                  property_valuation,
+						"property_account_income_categ_id":    income_account_id,
+						"property_account_expense_categ_id":   expense_account_id,
+						"property_stock_valuation_account_id": stock_valuation_id,
 					}
 					rid, _ := m.Dest.GetID(model, []any{
 						[]any{"name", "=", layer3.Name},

@@ -61,10 +61,9 @@ func (m *Model) StockWarehouse() {
 	banner.Println(model, trace())
 	m.Log.Info(model, "func", trace())
 
-	sourceFields := ExtractJSONTags(StockWarehouse_150{})
-	domain := []any{}
-
-	records, err := m.Source.SearchRead(model, 0, 0, sourceFields, domain)
+	records, err := m.Source.SearchRead(model, 0, 0, ExtractJSONTags(StockWarehouse_150{}), []any{
+		[]any{"name", "in", []any{"Calgary", "Edmonton [A]", "Weatherford (Nisku) Consignment"}},
+	})
 	if err != nil {
 		m.Log.Error(model, "func", trace(), "err", err)
 		return
@@ -84,7 +83,6 @@ func (m *Model) StockWarehouse() {
 			"name":                    w.Name,
 			"code":                    w.Code,
 			"reception_steps":         w.ReceptionSteps,
-			"delivery_steps":          w.DeliverySteps,
 			"manufacture_steps":       w.ManufactureSteps,
 			"buy_to_resupply":         w.BuyToResupply,
 			"manufacture_to_resupply": w.ManufactureToResupply,
@@ -93,14 +91,17 @@ func (m *Model) StockWarehouse() {
 
 		if w.ID == 1 {
 			ur["code"] = "EWH"
+			ur["delivery_steps"] = "pick_ship"
 			m.writeRecord(model, ur, 1)
 		} else if w.Name == "Calgary" {
 			ur["code"] = "CWH"
+			ur["delivery_steps"] = "pick_ship"
 			rid, _ := m.Dest.GetID(model, []any{
 				[]any{"name", "=", w.Name},
 			})
 			m.writeRecord(model, ur, rid)
 		} else {
+			ur["delivery_steps"] = "ship_only"
 			rid, _ := m.Dest.GetID(model, []any{
 				[]any{"name", "=", w.Name},
 			})

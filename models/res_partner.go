@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -124,6 +126,10 @@ func (m *Model) ResPartner() {
 			continue
 		}
 		// fmt.Println(prettyprint(p))
+		if strings.TrimSpace(p.Name) == "" {
+			bar.Add(1)
+			continue
+		}
 
 		ur := map[string]any{
 			"name":              p.Name,
@@ -307,6 +313,10 @@ func (m *Model) ResPartner() {
 			continue
 		}
 		// fmt.Println(prettyprint(p))
+		if strings.TrimSpace(p.Name) == "" {
+			bar.Add(1)
+			continue
+		}
 
 		ur := map[string]any{
 			"name":              p.Name,

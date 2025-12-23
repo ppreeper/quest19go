@@ -1,6 +1,7 @@
 package models
 
 import (
+	"slices"
 	"sync"
 
 	"github.com/schollz/progressbar/v3"
@@ -119,7 +120,7 @@ type ProductTemplate_150 struct {
 	// ReorderingMinQty                     float64 `json:"reordering_min_qty"`                        // Reordering Min Qty
 	// ResponsibleID                        any     `json:"responsible_id"`                            // Responsible 📦 relation: many2one res.users
 	// RouteFromCategIDs                    any     `json:"route_from_categ_ids"`                      // Category Routes 📦 relation: many2many stock.location.route
-	// RouteIDs                             any     `json:"route_ids"`                                 // Routes 📦 relation: many2many stock.location.route
+	RouteIDs  any     `json:"route_ids"`  // Routes 📦 relation: many2many stock.location.route
 	SaleDelay float64 `json:"sale_delay"` // Customer Lead Time
 	// SaleLineWarn                         any     `json:"sale_line_warn"`                            // Sales Order Line ⭐ required
 	SaleLineWarnMsg string `json:"sale_line_warn_msg"` // Message for Sales Order Line
@@ -164,6 +165,8 @@ type ProductTemplate_150 struct {
 	// WriteUid                               any       `json:"write_uid"`                                  // Last Updated by 📦 relation: many2one res.users
 }
 
+// make sure that the MTO is set if it already set on the routes
+
 func (m *Model) ProductTemplateStockable() {
 	model := "product.template"
 	banner.Println(model, trace())
@@ -175,6 +178,7 @@ func (m *Model) ProductTemplateStockable() {
 
 	products, err := m.Source.SearchRead(model, 0, 0, ExtractJSONTags(ProductTemplate_150{}), []any{
 		[]any{"detailed_type", "=", "product"},
+		// []any{"name", "like", "M999%"},
 	})
 	if err != nil {
 		m.Log.Error(model, "func", trace(), "err", err)
@@ -184,6 +188,9 @@ func (m *Model) ProductTemplateStockable() {
 		m.Log.Info(model, "func", trace(), "err", "no record found")
 		return
 	}
+
+	source_mto_id, _ := m.Source.GetID("stock.location.route", []any{[]any{"name", "=", "Manufacture To Order"}})
+	dest_mto_id, _ := m.Dest.GetID("stock.route", []any{[]any{"name", "=", "Replenish on Order (MTO)"}})
 
 	bar := progressbar.Default(int64(len(products)))
 
@@ -224,25 +231,19 @@ func (m *Model) ProductTemplateStockable() {
 			if categ_id, ok := pcMap[categ_name]; ok {
 				ur["categ_id"] = categ_id
 			}
-			// categ_id, err := m.Dest.GetID("product.category", []any{[]any{"complete_name", "=", categ_name}})
-			// if err != nil {
-			// 	m.Log.Error(model, "func", trace(), "err", err)
-			// }
-			// if categ_id != -1 {
-			// 	ur["categ_id"] = categ_id
-			// }
 
-			// m.Log.Info(model, "ur", ur)
-			// fmt.Println(model, "ur", ur)
+			// RouteIDs processing to ensure MTO is included
+			// m.Log.Info(model, "Processing RouteIDs for product", p.RouteIDs)
+			routeIDs := anytointslice(p.RouteIDs)
+			if slices.Contains(routeIDs, source_mto_id) {
+				ur["route_ids"] = []int{dest_mto_id}
+			}
 
 			rid, _ := m.Dest.GetID(model, []any{
 				[]any{"name", "=", p.Name},
 				[]any{"default_code", "=", p.DefaultCode},
 				[]any{"barcode", "=", p.Barcode},
 			})
-
-			// m.Log.Info(model, "rid", rid)
-			// fmt.Println(model, "rid", rid)
 
 			m.writeRecord(model, ur, rid)
 			// bar.Add(1)
@@ -261,12 +262,10 @@ func (m *Model) ProductTemplateConsumable() {
 
 	pcMap := m.productCategoryMap()
 
-	sourceFields := ExtractJSONTags(ProductTemplate_150{})
-	domain := []any{
+	products, err := m.Source.SearchRead(model, 0, 0, ExtractJSONTags(ProductTemplate_150{}), []any{
 		[]any{"detailed_type", "=", "consu"},
-	}
-
-	products, err := m.Source.SearchRead(model, 0, 0, sourceFields, domain)
+		// []any{"name", "like", "M999%"},
+	})
 	if err != nil {
 		m.Log.Error(model, "func", trace(), "err", err)
 		return
@@ -275,6 +274,9 @@ func (m *Model) ProductTemplateConsumable() {
 		m.Log.Info(model, "func", trace(), "err", "no record found")
 		return
 	}
+
+	source_mto_id, _ := m.Source.GetID("stock.location.route", []any{[]any{"name", "=", "Manufacture To Order"}})
+	dest_mto_id, _ := m.Dest.GetID("stock.route", []any{[]any{"name", "=", "Replenish on Order (MTO)"}})
 
 	bar := progressbar.Default(int64(len(products)))
 
@@ -294,7 +296,7 @@ func (m *Model) ProductTemplateConsumable() {
 				"list_price":             p.ListPrice,
 				"standard_price":         p.StandardPrice,
 				"type":                   "consu",
-				"is_storable":            true,
+				"is_storable":            false,
 				"can_be_expensed":        p.CanBeExpensed,
 				"sale_ok":                true,
 				"purchase_ok":            true,
@@ -315,7 +317,13 @@ func (m *Model) ProductTemplateConsumable() {
 			if categ_id, ok := pcMap[categ_name]; ok {
 				ur["categ_id"] = categ_id
 			}
-			// m.Log.Info(model, "ur", ur)
+
+			// RouteIDs processing to ensure MTO is included
+			// m.Log.Info(model, "Processing RouteIDs for product", p.RouteIDs)
+			routeIDs := anytointslice(p.RouteIDs)
+			if slices.Contains(routeIDs, source_mto_id) {
+				ur["route_ids"] = []int{dest_mto_id}
+			}
 
 			rid, _ := m.Dest.GetID(model, []any{
 				[]any{"name", "=", p.Name},
@@ -335,6 +343,22 @@ func (m *Model) ProductTemplateConsumable() {
 	bar.Finish()
 }
 
+func anytointslice(a any) []int {
+	ints := []int{}
+	switch v := a.(type) {
+	case []any:
+		for _, item := range v {
+			switch id := item.(type) {
+			case float64:
+				ints = append(ints, int(id))
+			}
+		}
+	case []int:
+		ints = v
+	}
+	return ints
+}
+
 func (m *Model) ProductTemplateService() {
 	model := "product.template"
 	banner.Println(model, trace())
@@ -344,12 +368,9 @@ func (m *Model) ProductTemplateService() {
 
 	pcMap := m.productCategoryMap()
 
-	sourceFields := ExtractJSONTags(ProductTemplate_150{})
-	domain := []any{
+	products, err := m.Source.SearchRead(model, 0, 0, ExtractJSONTags(ProductTemplate_150{}), []any{
 		[]any{"detailed_type", "=", "service"},
-	}
-
-	products, err := m.Source.SearchRead(model, 0, 0, sourceFields, domain)
+	})
 	if err != nil {
 		m.Log.Error(model, "func", trace(), "err", err)
 		return
@@ -358,6 +379,9 @@ func (m *Model) ProductTemplateService() {
 		m.Log.Info(model, "func", trace(), "err", "no record found")
 		return
 	}
+
+	source_mto_id, _ := m.Source.GetID("stock.location.route", []any{[]any{"name", "=", "Manufacture To Order"}})
+	dest_mto_id, _ := m.Dest.GetID("stock.route", []any{[]any{"name", "=", "Replenish on Order (MTO)"}})
 
 	bar := progressbar.Default(int64(len(products)))
 
@@ -371,13 +395,12 @@ func (m *Model) ProductTemplateService() {
 			FillStruct(r, &p)
 
 			ur := map[string]any{
-				"name":           p.Name,
-				"default_code":   p.DefaultCode,
-				"barcode":        p.Barcode,
-				"list_price":     p.ListPrice,
-				"standard_price": p.StandardPrice,
-				"type":           "service",
-				// "is_storable":            true,
+				"name":                   p.Name,
+				"default_code":           p.DefaultCode,
+				"barcode":                p.Barcode,
+				"list_price":             p.ListPrice,
+				"standard_price":         p.StandardPrice,
+				"type":                   "service",
 				"can_be_expensed":        p.CanBeExpensed,
 				"sale_ok":                true,
 				"purchase_ok":            true,
@@ -398,7 +421,13 @@ func (m *Model) ProductTemplateService() {
 			if categ_id, ok := pcMap[categ_name]; ok {
 				ur["categ_id"] = categ_id
 			}
-			// m.Log.Info(model, "ur", ur)
+
+			// RouteIDs processing to ensure MTO is included
+			// m.Log.Info(model, "Processing RouteIDs for product", p.RouteIDs)
+			routeIDs := anytointslice(p.RouteIDs)
+			if slices.Contains(routeIDs, source_mto_id) {
+				ur["route_ids"] = []int{dest_mto_id}
+			}
 
 			rid, _ := m.Dest.GetID(model, []any{
 				[]any{"name", "=", p.Name},

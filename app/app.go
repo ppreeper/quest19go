@@ -20,27 +20,6 @@ type App struct {
 	// Ctx    context.Context
 }
 
-// 5ef6cf19b1c270ad4489095e9839b80aec61d32e
-
-// q15 = JRPC(
-//
-//	hostname="quest15data.odoopro.ca",
-//	port=443,
-//	schema="https",
-//	database="quest15_data",
-//	username="aventador",
-//	password="57c850aeec0310c8c67bc167701c1145ecfff111",
-//
-// )
-// q15.Login()
-// q19 = JRPC(
-//
-//	hostname="quest19data.odoopro.ca",
-//	port=443,
-//	schema="https",
-//	database="quest19_data",
-//	username="admin",
-//	password="5142bde98870da39d83f2f33fb60f07fbf28c6f7",
 func NewApp() (*App, error) {
 	conn := &App{}
 	conn.Source = odoojrpc.NewOdoo().
@@ -50,11 +29,24 @@ func NewApp() (*App, error) {
 		WithUsername("aventador").
 		WithPassword("z4ok8Zj2SX9hfPI5CCeM")
 
+	// conn.Source = odoojrpc.NewOdoo().
+	// 	WithHostname("questgasket.odoopro.ca").
+	// 	WithPort(443).WithSchema("https").
+	// 	WithDatabase("quest15_main").
+	// 	WithUsername("aventador").
+	// 	WithPassword("z4ok8Zj2SX9hfPI5CCeM")
+
 	conn.Dest = odoojson.NewOdoo().
 		WithHostname("quest19data.odoopro.ca").
 		WithPort(443).WithSchema("https").
 		WithDatabase("quest19_data").
 		WithAPIKey("5142bde98870da39d83f2f33fb60f07fbf28c6f7")
+
+	// conn.Dest = odoojson.NewOdoo().
+	// 	WithHostname("quest19.odoopro.ca").
+	// 	WithPort(443).WithSchema("https").
+	// 	WithDatabase("quest19_dev").
+	// 	WithAPIKey("5142bde98870da39d83f2f33fb60f07fbf28c6f7")
 
 	conn.setupLogging("import.log")
 

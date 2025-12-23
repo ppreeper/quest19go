@@ -92,9 +92,11 @@ func (m *Model) StockQuant() {
 	model := "stock.quant"
 	banner.Println(model, trace())
 	m.Log.Info(model, "func", trace())
-	records, err := m.Source.SearchRead(model, 0, 10, ExtractJSONTags(StockQuant_150{}), []any{
+	records, err := m.Source.SearchRead(model, 0, 0, ExtractJSONTags(StockQuant_150{}), []any{
 		[]any{"location_id", "not like", "Virtual Locations"},
 		[]any{"location_id", "not like", "Partner Locations"},
+		[]any{"location_id", "not like", "Packing Zone"},
+		[]any{"location_id", "not like", "Output"},
 	})
 	if err != nil {
 		m.Log.Error(model, "func", trace(), "err", err)
@@ -104,15 +106,17 @@ func (m *Model) StockQuant() {
 		m.Log.Info(model, "func", trace(), "err", "no record found")
 		return
 	}
-	bar := progressbar.Default(-1, "quants")
+	bar := progressbar.Default(int64(len(records)), "quants")
 	for _, record := range records {
 		var q StockQuant_150
 		FillStruct(record, &q)
 		// fmt.Println(prettyprint(q))
 
 		ur := make(map[string]any)
-		product_tmpl_id := m.GetDestProductTemplate(ParseMany2One(q.ProductTmplID))
-		ur["product_tmpl_id"] = product_tmpl_id
+		// product_tmpl_id := m.GetDestProductTemplate(ParseMany2One(q.ProductTmplID))
+		// ur["product_tmpl_id"] = product_tmpl_id
+		product_id := m.GetDestProductProduct(ParseMany2One(q.ProductID))
+		ur["product_id"] = product_id
 		location_id := m.GetDestStockLocation(ParseMany2One(q.LocationID))
 		ur["location_id"] = location_id
 		ur["quantity"] = q.Quantity
@@ -124,7 +128,7 @@ func (m *Model) StockQuant() {
 		// fmt.Println(prettyprint(ur))
 
 		rid, _ := m.Dest.GetID(model, []any{
-			[]any{"product_tmpl_id", "=", product_tmpl_id},
+			[]any{"product_id", "=", product_id},
 			[]any{"location_id", "=", location_id},
 		})
 		m.writeRecord(model, ur, rid)

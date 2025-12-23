@@ -1,7 +1,10 @@
 package models
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"strings"
 
 	"github.com/schollz/progressbar/v3"
 )
@@ -366,6 +369,13 @@ type ResUsers_150 struct {
 	ZIP string `json:"zip"` // Zip
 }
 
+type ResUsers_190 struct {
+	ID       int    `json:"id"`       // ID
+	Name     string `json:"name"`     // Name
+	Login    string `json:"login"`    // Login ⭐ required
+	Password string `json:"password"` // Password
+}
+
 func (m *Model) ResUsers() {
 	model := "res.users"
 	banner.Println(model, trace())
@@ -479,6 +489,46 @@ func (m *Model) ResUsersCreateEmployee() {
 			"ids": []int{user.ID},
 		}
 		m.Dest.Execute(model, "action_create_employee", []any{ur})
+
+		bar.Add(1)
+	}
+	bar.Finish()
+}
+
+func (m *Model) ResUsersPassword() {
+	model := "res.users"
+	banner.Println(model, trace())
+	m.Log.Info(model, "func", trace())
+
+	records, err := m.Dest.SearchRead(model, 0, 0, ExtractJSONTags(ResUsers_190{}), []any{
+		[]any{"name", "!=", "Administrator"},
+	})
+	if err != nil {
+		m.Log.Error(model, "func", trace(), "err", err)
+		return
+	}
+	if len(records) == 0 {
+		m.Log.Info(model, "func", trace(), "err", "no record found")
+		return
+	}
+
+	bar := progressbar.Default(int64(len(records)), model)
+	for _, r := range records {
+		var user ResUsers_190
+		FillStruct(r, &user)
+		// fmt.Println(prettyprint(user))
+		fname := strings.Split(user.Name, " ")
+		fullname := strings.Join(fname, "")
+		fullnameLower := strings.ToLower(fullname)
+		loginHash := sha256.Sum256([]byte(user.Login))
+		loginHashHex := hex.EncodeToString(loginHash[:])
+		password := fullnameLower + loginHashHex[0:4]
+		m.Log.Info(model, "user", user.Name, "login", user.Login, "password", password)
+
+		ur := map[string]any{
+			"password": password,
+		}
+		m.writeRecord(model, ur, user.ID)
 
 		bar.Add(1)
 	}

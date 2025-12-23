@@ -43,8 +43,13 @@ func (m *Model) MRPBomLine() {
 	// 	[]any{"display_name", "like", "[MTO] F:STUD.L7.118.12"},
 	// })
 
-	records, err := m.Source.SearchRead(model, 0, 5, sourceFields, []any{
+	// bomID, _ := m.Source.GetID("mrp.bom", []any{
+	// 	// []any{"product_tmpl_id", "=", "SNC:B7.1.1112"},
+	// })
+
+	records, err := m.Source.SearchRead(model, 0, 0, sourceFields, []any{
 		[]any{"bom_id.active", "=", true},
+		// []any{"bom_id", "=", bomID},
 		// []any{"bom_id", "in", []int{16308, 22410, 22411, 22412, 22414, 22415, 22443, 22482, 22557, 22594}},
 		// []any{"bom_id", "in", ExtractIDs(boms)},
 	})
@@ -86,7 +91,7 @@ func (m *Model) MRPBomLine() {
 		old_ptmpl_id := m.GetDestProductTemplate(ParseMany2One(old_bom.ProductTmplID))
 		// fmt.Println("old_ptmpl_id:", old_ptmpl_id, "code", old_bom.Code, "type", old_bom.Type)
 		if old_ptmpl_id == -1 {
-			m.Log.Error(model, "func", trace(), "err", fmt.Sprintf("product.template not found for %s", old_bom.ProductTmplID))
+			m.Log.Error(model, "func", trace(), "err", fmt.Sprintf("product.template not found for %v, %s", record.DisplayName, old_bom.ProductTmplID))
 			continue
 		}
 
@@ -100,7 +105,7 @@ func (m *Model) MRPBomLine() {
 			continue
 		}
 		if bom == -1 {
-			m.Log.Error(model, "func", trace(), "err", fmt.Sprintf("mrp.bom not found for %v", old_bom))
+			m.Log.Error(model, "func", trace(), "err", fmt.Sprintf("mrp.bom not found for %v, %v", record.DisplayName, old_bom))
 			continue
 		}
 		// fmt.Println("DEST BOM ID:", bom)
@@ -111,7 +116,7 @@ func (m *Model) MRPBomLine() {
 		// fmt.Println("Component ProductID:", prettyprint(record.ProductID))
 		dest_product_product_id := m.GetDestProductProduct(ParseMany2One(record.ProductID))
 		if dest_product_product_id == -1 {
-			m.Log.Error(model, "func", trace(), "err", fmt.Sprintf("product.product not found for %s", record.ProductID))
+			m.Log.Error(model, "func", trace(), "err", fmt.Sprintf("product.product not found for %v, %s", record.DisplayName, record.ProductID))
 			continue
 		}
 
@@ -120,6 +125,7 @@ func (m *Model) MRPBomLine() {
 		//
 
 		_, uom_name := ParseMany2One(record.ProductUomID)
+		uom_name = quickconvertuom(uom_name)
 		dest_uom_id, err := m.Dest.GetID("uom.uom", []any{
 			[]any{"name", "=", uom_name},
 		})
@@ -128,7 +134,7 @@ func (m *Model) MRPBomLine() {
 			continue
 		}
 		if dest_uom_id == -1 {
-			m.Log.Error(model, "func", trace(), "err", fmt.Sprintf("uom.uom not found for %s", record.ProductUomID))
+			m.Log.Error(model, "func", trace(), "err", fmt.Sprintf("uom.uom not found for %v, %s", record.DisplayName, record.ProductUomID))
 			continue
 		}
 
