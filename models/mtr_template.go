@@ -150,12 +150,14 @@ func (m *Model) MtrTemplate() {
 			var record MtrTemplate_150
 			FillStruct(r, &record)
 			// fmt.Println(prettyprint(record))
+
 			ur := map[string]any{
-				"name":        record.Name,
 				"category":    record.Category,
 				"heat_number": record.HeatNumber,
 			}
-			pid_source, _ := ParseMany2One(record.ProductID)
+			pid_source, pid_name := ParseMany2One(record.ProductID)
+			// fmt.Println("mtr product:", pid_source, pid_name)
+			ur["name"] = pid_name
 			ps, _ := m.Source.SearchRead("product.product", 0, 0, []string{"id", "name"}, []any{[]any{"id", "=", pid_source}})
 			if len(ps) > 0 {
 				pid := -1
@@ -498,6 +500,19 @@ func (m *Model) MtrTemplate() {
 			// vanadium_value
 			if record.VanadiumValue != "" {
 				ur["vanadium_value"] = record.VanadiumValue
+			}
+
+			mtr_doc_id, _ := ParseMany2One(record.MtrOriginalDocumentID)
+			if mtr_doc_id != 0 {
+				// get documents.document id from dest
+				documents, _ := m.Source.SearchRead("documents.document", 0, 0, []string{"id", "name", "datas"}, []any{[]any{"id", "=", mtr_doc_id}})
+				if len(documents) > 0 {
+					doc_name, _ := documents[0]["name"].(string)
+					ur["original_mtr_filename"] = doc_name
+					ur["original_mtr"] = documents[0]["datas"]
+					// original_mtr = fields.Binary("Original MTR")
+					// original_mtr_filename = fields.Char("Original MTR Filename")
+				}
 			}
 
 			rid, err := m.Dest.GetID(model, []any{

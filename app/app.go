@@ -37,9 +37,9 @@ func NewApp() (*App, error) {
 	// 	WithPassword("z4ok8Zj2SX9hfPI5CCeM")
 
 	conn.Dest = odoojson.NewOdoo().
-		WithHostname("quest19data.odoopro.ca").
+		WithHostname("questgasket.odoopro.ca").
 		WithPort(443).WithSchema("https").
-		WithDatabase("quest19_data").
+		WithDatabase("quest19_main").
 		WithAPIKey("5142bde98870da39d83f2f33fb60f07fbf28c6f7")
 
 	// conn.Dest = odoojson.NewOdoo().

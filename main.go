@@ -33,51 +33,51 @@ func main() {
 	// Add NCR Manager and MTR Manager permissions before loading data
 
 	fns := []func(){
-		model.DecimalPrecision, // Decimal Precision
-		model.ResCurrency,      // Currencies
-		model.ResCompany,       // Company
-		model.Uomuom,           // Units of Measure
-		model.ResBank,          // Banks
-		model.AccountAccountCleanup,
-		model.AccountAccountNewAccounts, // Account New Accounts (clearing accounts)
-		model.AccountAccountRename,      // Account Rename
-		model.AccountAccount,            // Chart Of Accounts
-		model.AccountJournal,            // Journals
-		model.AccountPaymentTermRename,  // Payment Terms Rename
-		model.AccountPaymentTerm,        // Payment Terms
-		model.ResUsers,                  // Employees
-		model.ResUsersCreateEmployee,
-		model.HRDepartment,
-		model.HRJob,
-		model.HREmployee,
-		model.HRDepartment,
-		model.ResUsersPassword,
-		model.CrmTeam,                        // Sales Teams
-		model.CrmTeamMember,                  // Sales Team Members
-		model.ProductCategories,              // Product Categories
-		model.StockWarehouse,                 // Warehouses
-		model.StockLocation,                  // Stock Locations
-		model.InterWarehouseTransitLocations, // Inter-Warehouse Transit Locations
-		model.ProductTemplateStockable,
-		model.ProductTemplateConsumable,
-		model.ProductTemplateService,
-		model.ProductPricelist,     // Customer Pricelists
-		model.ProductPricelistItem, // Customer Pricelist items
+		// model.DecimalPrecision, // Decimal Precision
+		// model.ResCurrency,      // Currencies
+		// model.ResCompany,       // Company
+		// model.Uomuom,           // Units of Measure
+		// model.ResBank,          // Banks
+		// model.AccountAccountCleanup,
+		// model.AccountAccountNewAccounts, // Account New Accounts (clearing accounts)
+		// model.AccountAccountRename,      // Account Rename
+		// model.AccountAccount,            // Chart Of Accounts
+		// model.AccountJournal,            // Journals
+		// model.AccountPaymentTermRename,  // Payment Terms Rename
+		// model.AccountPaymentTerm,        // Payment Terms
+		// model.ResUsers,                  // Employees
+		// model.ResUsersCreateEmployee,
+		// model.HRDepartment,
+		// model.HRJob,
+		// model.HREmployee,
+		// model.HRDepartment,
+		// model.ResUsersPassword,
+		// model.CrmTeam,                        // Sales Teams
+		// model.CrmTeamMember,                  // Sales Team Members
+		// model.ProductCategories,              // Product Categories
+		// model.StockWarehouse,                 // Warehouses
+		// model.StockLocation,                  // Stock Locations
+		// model.InterWarehouseTransitLocations, // Inter-Warehouse Transit Locations
+		// model.ProductTemplateStockable,
+		// model.ProductTemplateConsumable,
+		// model.ProductTemplateService,
+		// model.ProductPricelist,     // Customer Pricelists
+		// model.ProductPricelistItem, // Customer Pricelist items
 		model.ResPartner,           // Partners - Companies and Contacts
-		model.ProductSupplierinfo,  // Vendor Pricelists
-		model.MRPWorkcenterTag,
-		model.MRPWorkcenter,
-		model.MRPBom,               // BOM
-		model.MRPRoutingWorkcenter, // BOM Operations
-		model.MRPBomLine,           // BOM Components
-		model.NCRCategory,          // NCR Categories
-		model.NCRClaim,             // NCR Claims
-		model.NCRProductLine,       // NCR Claim Product Lines
-		model.MtrTemplate,          // MTR Templates
-		// Point of no return - data beyond this point wont let you go back to previous steps
-		model.DeliveryMethods, // Delivery Methods and stock carriers
-		model.FreightCharges,  // Freight Charges
-		model.StockQuant,      // Stock Quants
+		// model.ProductSupplierinfo,  // Vendor Pricelists
+		// model.MRPWorkcenterTag,
+		// model.MRPWorkcenter,
+		// model.MRPBom,               // BOM
+		// model.MRPRoutingWorkcenter, // BOM Operations
+		// model.MRPBomLine,           // BOM Components
+		// model.DeliveryMethods,      // Delivery Methods and stock carriers
+		// model.FreightCharges,       // Freight Charges
+		// model.NCRCategory,          // NCR Categories
+		// model.NCRClaim,             // NCR Claims
+		// model.NCRProductLine,       // NCR Claim Product Lines
+		// model.MtrTemplate,          // MTR Templates *** not repeatable ***
+		// // Point of no return - data beyond this point wont let you go back to previous steps
+		// model.StockQuant, // Stock Quants
 
 	}
 	for _, fn := range fns {

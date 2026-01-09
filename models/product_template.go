@@ -44,8 +44,8 @@ type ProductTemplate_150 struct {
 	// DescriptionPicking    string `json:"description_picking"`    // Description on Picking
 	// DescriptionPickingin  string `json:"description_pickingin"`  // Description on Receptions
 	// DescriptionPickingout string `json:"description_pickingout"` // Description on Delivery Orders
-	// DescriptionPurchase   string `json:"description_purchase"`   // Purchase Description
-	// DescriptionSale       string `json:"description_sale"`       // Sales Description
+	DescriptionPurchase string `json:"description_purchase"` // Purchase Description
+	DescriptionSale     string `json:"description_sale"`     // Sales Description
 	// DetailedType          any    `json:"detailed_type"`          // Product Type ⭐ required
 	// DisplayName           string `json:"display_name"`           // Display Name
 	// EcoCount                               int       `json:"eco_count"`                                  // # ECOs
@@ -178,7 +178,7 @@ func (m *Model) ProductTemplateStockable() {
 
 	products, err := m.Source.SearchRead(model, 0, 0, ExtractJSONTags(ProductTemplate_150{}), []any{
 		[]any{"detailed_type", "=", "product"},
-		// []any{"name", "like", "M999%"},
+		// []any{"name", "like", "ACC:ELBOWCS.6"},
 	})
 	if err != nil {
 		m.Log.Error(model, "func", trace(), "err", err)
@@ -215,6 +215,8 @@ func (m *Model) ProductTemplateStockable() {
 				"sale_ok":                true,
 				"purchase_ok":            true,
 				"description":            p.Description,
+				"description_purchase":   p.DescriptionPurchase,
+				"description_sale":       p.DescriptionSale,
 				"sale_line_warn_msg":     p.SaleLineWarnMsg,
 				"purchase_line_warn_msg": p.PurchaseLineWarnMsg,
 				"volume":                 p.Volume,
@@ -301,6 +303,8 @@ func (m *Model) ProductTemplateConsumable() {
 				"sale_ok":                true,
 				"purchase_ok":            true,
 				"description":            p.Description,
+				"description_purchase":   p.DescriptionPurchase,
+				"description_sale":       p.DescriptionSale,
 				"sale_line_warn_msg":     p.SaleLineWarnMsg,
 				"purchase_line_warn_msg": p.PurchaseLineWarnMsg,
 				"volume":                 p.Volume,
@@ -405,6 +409,8 @@ func (m *Model) ProductTemplateService() {
 				"sale_ok":                true,
 				"purchase_ok":            true,
 				"description":            p.Description,
+				"description_purchase":   p.DescriptionPurchase,
+				"description_sale":       p.DescriptionSale,
 				"sale_line_warn_msg":     p.SaleLineWarnMsg,
 				"purchase_line_warn_msg": p.PurchaseLineWarnMsg,
 				"volume":                 p.Volume,
